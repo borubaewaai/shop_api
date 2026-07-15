@@ -1,4 +1,6 @@
+from django.core.validators import MinValueValidator
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
 class Category(models.Model):
     name = models.CharField(max_length=255)
     def __str__(self):
@@ -14,8 +16,13 @@ class Product(models.Model):
         return self.title
 
 class Review(models.Model):
-    tect = models.TextField()
+    text = models.TextField()
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
+    stars = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        default = 5,
+    )
+
 
     def __str__(self):
         return f"Review for {self.product.title}"
