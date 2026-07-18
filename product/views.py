@@ -1,15 +1,15 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Category, Product, Review
+from common.permissions import IsModerator
+from drf_yasg.utils import swagger_auto_schema
 from .serializers import (
     CategorySerializer, ProductSerializer, ReviewSerializer,
     ProductWithReviewsSerializer
 )
 
-
-# ---------- Категории ----------
-
+@swagger_auto_schema(method='put', request_body=CategorySerializer)
 @api_view(['GET', 'PUT', 'DELETE'])
 def category_detail_api_view(request, id):
     try:
@@ -31,7 +31,7 @@ def category_detail_api_view(request, id):
         serializer.save()
         return Response(data=serializer.data)
 
-
+@swagger_auto_schema(method='post', request_body=CategorySerializer)
 @api_view(['GET', 'POST'])
 def category_list_api_view(request):
     if request.method == 'GET':
@@ -45,15 +45,21 @@ def category_list_api_view(request):
         serializer.save()
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
-
-# ---------- Товары ----------
-
+@swagger_auto_schema(method='put', request_body=CategorySerializer)
 @api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsModerator])
 def product_detail_api_view(request, id):
     try:
         product = Product.objects.get(id=id)
     except Product.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
+
+    permission = IsModerator()
+    if not permission.has_object_permission(request, product_detail_api_view, product):
+        return Response(
+            status=status.HTTP_403_FORBIDDEN,
+            data={'detail': 'У вас недостаточно прав для выполнения данного действия.'}
+        )
 
     if request.method == 'GET':
         data = ProductSerializer(product).data
@@ -69,8 +75,9 @@ def product_detail_api_view(request, id):
         serializer.save()
         return Response(data=serializer.data)
 
-
+@swagger_auto_schema(method='post', request_body=CategorySerializer)
 @api_view(['GET', 'POST'])
+@permission_classes([IsModerator])
 def product_list_api_view(request):
     if request.method == 'GET':
         products = Product.objects.all()
@@ -84,8 +91,7 @@ def product_list_api_view(request):
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
 
-# ---------- Отзывы ----------
-
+@swagger_auto_schema(method='put', request_body=CategorySerializer)
 @api_view(['GET', 'PUT', 'DELETE'])
 def review_detail_api_view(request, id):
     try:
@@ -106,8 +112,7 @@ def review_detail_api_view(request, id):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(data=serializer.data)
-
-
+@swagger_auto_schema(method='post', request_body=CategorySerializer)
 @api_view(['GET', 'POST'])
 def review_list_api_view(request):
     if request.method == 'GET':
@@ -118,9 +123,8 @@ def review_list_api_view(request):
     elif request.method == 'POST':
         serializer = ReviewSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save(author=request.user)   # author проставляем вручную, т.к. read_only
+        serializer.save(author=request.user)
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
-
 
 @api_view(['GET'])
 def product_with_review_api_view(request):

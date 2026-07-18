@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'users',
     'rest_framework.authtoken',
     'drf_yasg',
+    'common',
 ]
 
 MIDDLEWARE = [
@@ -133,4 +134,14 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ],
+}
+
+SWAGGER_SETTINGS = {
+    "SECURITY_DEFINITIONS": {
+        "Authorization": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
 }
