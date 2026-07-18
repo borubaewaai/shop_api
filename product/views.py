@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Category, Product, Review
 from common.permissions import IsModerator
+from common.validators import validate_user_age
 from drf_yasg.utils import swagger_auto_schema
 from .serializers import (
     CategorySerializer, ProductSerializer, ReviewSerializer,
@@ -85,6 +86,7 @@ def product_list_api_view(request):
         return Response(data=data)
 
     elif request.method == 'POST':
+        validate_user_age(request)
         serializer = ProductSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()

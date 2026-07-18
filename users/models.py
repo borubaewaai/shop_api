@@ -10,7 +10,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=150, blank=True)
     last_name = models.CharField(max_length=150, blank=True)
     phone_number = models.CharField(max_length=20, blank=True, null=True, verbose_name='Номер телефона')
-
+    birthdate = models.DateField(null=True, blank=True, verbose_name='Дата рождения')
     is_active = models.BooleanField(default=False)  # неактивен, пока не подтвердит код
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)

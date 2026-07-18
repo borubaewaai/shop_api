@@ -6,7 +6,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import authenticate
-from rest_framework.authtoken.models import Token
 from rest_framework.generics import CreateAPIView
 from drf_yasg.utils import swagger_auto_schema
 
@@ -14,6 +13,7 @@ from .serializers import (
     RegisterValidateSerializer,
     AuthValidateSerializer,
     ConfirmationSerializer,
+    get_tokens_with_birthdate,
 )
 from .models import CustomUser, ConfirmationCode
 
@@ -38,8 +38,8 @@ class AuthorizationAPIView(APIView):
                 data={'error': 'User account is not activated yet!'}
             )
 
-        token, _ = Token.objects.get_or_create(user=user)
-        return Response(data={'key': token.key})
+        tokens = get_tokens_with_birthdate(user)
+        return Response(data=tokens)
 
 
 class RegistrationAPIView(CreateAPIView):
