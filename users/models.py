@@ -14,6 +14,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=False)  # неактивен, пока не подтвердит код
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)
+    registration_source = models.CharField(max_length=20, default='local', verbose_name='Источник регистрации')
 
     objects = CustomUserManager()
 
